@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{%endblock title%}</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,700" rel="stylesheet">
+	<style type="text/css">		
+		.masthead {
+			min-height: 700px;
+			background-color: #323339;
+		}
+		.masthead .ui.text.container {
+			padding-top: 15.5em;
+			text-align: center;
+		}
+		.masthead .ui.text.container h1 {
+			font-family: 'Raleway', sans-serif;
+			font-size: 3.5em;
+		}
+		.masthead .ui.text.container h3 {
+			font-family: 'Raleway Light', sans-serif;
+		}
+		#mainNavbar {
+			background: #323339;
+			padding-top: 15px;
+		}
+		#mainNavbar .button {
+			margin-right: 1em;
+		}
+		#content {
+			padding: 5em 0;
+		}
+		#firstType {
+			background: #dfe2d2;
+			min-height: 300px;
+			text-align: center;
+		}
+		#secondType {
+			background: #6cbf84;
+			min-height: 300px;
+			text-align: center;
+		}
+		
+		.description {
+			font-size: 2em;
+		}
+		.description.light {
+			font-family: 'Raleway Light', sans-serif;
+		}
+		
+		#featureCard .slide{
+			height: 200px;
+		}
+
+	</style>
+</head>
+<body>
+	{% include 'includes/nav.html' %}
+	{% block content %}
+	{% endblock content %}
+	<div class="container">
+		{% with messages = get_flashed_messages(with_categories=True) %}
+			{% if messages %}
+				{% for category, message in messages %}
+				<div class="ui {% if category == 'success' %}positive{% elif category == 'error'%}warning{%else%}info{%endif%} message" id="margin-top: 10em;">
+				  <i class="close icon"></i>
+				  <div class="header">
+				    {{ message }}
+				  </div>
+				</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+	</div>
+	<!--
+	{% include 'includes/footer.html' %}
+-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+	<script type="text/javascript">
+		$('.message .close')
+		  .on('click', function() {
+		    $(this)
+		      .closest('.message')
+		      .transition('fade')
+		    ;
+		  })
+		;
+	</script>
+	{% block script %}
+	{% endblock script %}
+</body>
+</html>

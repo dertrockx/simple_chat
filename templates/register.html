@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div style="padding-top: 10em">
+	<div class="ui container">
+		<form class="ui form" method="POST" action="{{ url_for('register') }}">
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+			<div class="ui field">
+				<label for="username">Username</label>
+				<input type="text" name="username">
+			</div>
+			<div class="ui field">
+				<label for="email">Email</label>
+				<input type="email" name="email">
+			</div>
+			<div class="ui field">
+				<label for="password">Password</label>
+				<input type="password" name="password">
+			</div>
+			<div class="ui field">
+				<label for="confirm_password">Confirm Password</label>
+				<input type="password" name="confirm_password">
+			</div>
+			<input type="submit" value="Register" class="ui large green button">
+		</form>
+	</div>
+</div>
+{% endblock content %}

@@ -1,0 +1,14 @@
+<div class="ui inverted large secondary pointing fixed menu" id="mainNavbar">
+	<div class="ui container">
+		<a href="{{ url_for('index') }}" class="active item">Home</a>
+		<a href="{{ url_for('chat') }}" class="item">Messages</a>
+		<div class="right item">
+			{% if session.get('logged_in') %}
+			<a href="{{ url_for('logout') }}" class="ui inverted yellow button">Logout</a>
+			{% else %}
+			<a href="{{ url_for('login') }}" class="ui inverted blue button">Login</a>
+			<a href="{{ url_for('register') }}" class="ui inverted green button">Register</a>
+			{% endif %}
+		</div>
+	</div>
+</div>
