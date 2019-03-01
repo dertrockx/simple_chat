@@ -52,7 +52,12 @@ class UserSessions(db.Model):
 	def __repr__(self):
 		return "<User {}'s session ID: {}".format(self.user, self.session_id)
 
+class ActiveUsers(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	user = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+	def __repr__(self):
+		return "<Active user: {}".format(self.user)
 
 '''
 class Messages(db.Model):
@@ -96,15 +101,22 @@ def login():
 		user = Users.query.filter(or_(Users.username == username, Users.email == username)).first()
 		if user or user_email:
 			if user.check_password(password):
-				session['logged_in'] = True
-				session['user_id'] = user.id
-				session['user_username'] = user.username
-				flash("Log in successful", "success")
-				return redirect(url_for('chat'))
+				active_user = ActiveUsers.query.filter_by(user=user.id).first()
+				if not active_user:
+					active = ActiveUsers(user=user.id)
+					db.session.add(active)
+					db.session.commit()
+					session['logged_in'] = True
+					session['user_id'] = user.id
+					session['user_username'] = user.username
+					flash("Log in successful", "success")
+					return redirect(url_for('chat'))
+				flash("Uh-oh! It seems that you're still logged-in to another device. Please sign out first", "error")
+				return render_template('login.html', form=form)
 			flash("Passwords do not match!", "error")
-			return redirect(url_for('login'))
+			return render_template('login.html', form=form)
 		flash("Username not found, consider registering?", "error")
-		return redirect(url_for('login'))
+		return render_template('login.html', form=form)
 	return render_template('login.html', form=form)
 
 @app.route('/register/', methods=['GET', 'POST'])
@@ -140,6 +152,9 @@ def chat():
 @app.route('/logout/')
 @is_logged_in
 def logout():
+	user = ActiveUsers.query.filter_by(user=session.get('user_id')).first()
+	db.session.delete(user)
+	db.session.commit()
 	session.pop('logged_in')
 	session.pop('user_id')
 	session.pop('user_username')
