@@ -139,7 +139,9 @@ class UserSchema(ma.ModelSchema):
 class MessageSchema(ma.ModelSchema):
 	class Meta:
 		model = Message
-		fields = ('id', 'user_id', 'message', 'timestamp')	
+		fields = ('id', 'user_id', 'user', 'message', 'timestamp')	
+		
+	user = ma.Nested(UserSchema)
 
 '''
 class Messages(db.Model):
@@ -334,7 +336,8 @@ def send_message(message):
 	mes = Message(user_id = session.get('user_id'), message=message)
 	db.session.add(mes)
 	db.session.commit()
-	list_all_messages()
+	message = MessageSchema().dump(mes).data
+	io.emit("update_message", message, broadcast=True)
 
 
 if __name__ == '__main__':
