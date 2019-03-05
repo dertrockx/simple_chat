@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, flash, redirect, url
 from flask_socketio import SocketIO
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 
 from flask_marshmallow import Marshmallow
 
@@ -39,6 +39,7 @@ class User(db.Model):
 	date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 	sessions = db.relationship("Session", backref='user_sessions', lazy=True, passive_deletes=True)
 	devices = db.relationship('Device', backref='user_devices', lazy=True, passive_deletes=True)
+	messages = db.relationship('Message', backref='user_messages', lazy=True, passive_deletes=True)
 	active = db.relationship("ActiveUser", backref='user_active', lazy=True, uselist=False)
 	def __repr__(self):
 		return '<User {}>'.format(self.username)
@@ -134,6 +135,12 @@ class UserSchema(ma.ModelSchema):
 		model = User
 	sessions = ma.Nested(SessionSchema, many=True)
 	devices = ma.Nested(DeviceSchema, many=True)
+
+class MessageSchema(ma.ModelSchema):
+	class Meta:
+		model = Message
+		fields = ('id', 'user_id', 'message', 'timestamp')	
+
 '''
 class Messages(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
@@ -308,9 +315,27 @@ def users():
 		users.append(user)
 	io.emit('list_users', users)
 
+@io.on('request_all_messages')
+def list_all_messages():
+	mes_ = MessageSchema()
+	serialized_messages = []
+	messages = Message.query.order_by('timestamp').all()
+	for message in messages:
+		mes = mes_.dump(message).data
+		if mes.get('user_id') == session.get('user_id'):
+			mes['owner'] = True
+		else:
+			mes['owner'] = False
+		serialized_messages.append(mes)
+	io.emit('list_all_messages', serialized_messages, broadcast=True)
+
 @io.on('send_message')
 def send_message(message):
-	print(message)
+	mes = Message(user_id = session.get('user_id'), message=message)
+	db.session.add(mes)
+	db.session.commit()
+	list_all_messages()
+
 
 if __name__ == '__main__':
 	app.run(debug=True)

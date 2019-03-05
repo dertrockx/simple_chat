@@ -95,6 +95,7 @@
 		let chats = $('.chats');
 		let height = chats.height();
 		chats.animate({scrollTop: height}, 'slow');
+		socket.emit('request_all_messages');
 	});
 	let user_list = $('ul#usersList');
 	socket.on('connect', function(){
@@ -109,15 +110,29 @@
 			user_list.append('<li>' + user.username + '</li>');
 		}
 	})
-	$('#sendMessage').on('click', function() {
+	$('#sendMessage').on('click', function(event) {
+		event.preventDefault();
 		let input_ = $('#message')
 		let mes = input_.val();
 		socket.emit('send_message', mes);
 		input_.val('');
-		let chats = $('.chats');
-		chats.append('<li class="me">' + mes + '</li>');
-		let height = chats.height();
-		chats.animate({scrollTop: height}, 'slow');
 	});
+	socket.on('list_all_messages', function(messages){
+		update_chats(messages)
+	});
+	function update_chats(messages) {
+		let chats = $('.chats');
+		for(message of messages){
+			if (message.owner){
+				chats.append('<li class="me">' + message.message + '</li>');
+			}
+			else {
+				chats.append('<li class="him">' + message.message + '</li>');
+			}
+		}
+		let height = chats.height();
+		console.log(height)
+		chats.animate({scrollTop: height}, 'fast');
+	}
 </script>
 {% endblock script %}
