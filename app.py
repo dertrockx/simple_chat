@@ -94,6 +94,16 @@ class ActiveUser(db.Model):
 		return "<Active user: {}".format(self.user)
 
 
+class Message(db.Model):
+	__tablename__ = 'messages'
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+	user = db.relationship('User', backref='user_message', lazy=True)
+	message = db.Column(db.Text, nullable=False)
+	timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+
+	def __repr__(self):
+		return "<User {}'s message: {}".format(self.user.username, self.message)
 
 '''
 	Model schemas
@@ -297,6 +307,10 @@ def users():
 		user = user_.dump(u.user).data
 		users.append(user)
 	io.emit('list_users', users)
+
+@io.on('send_message')
+def send_message(message):
+	print(message)
 
 if __name__ == '__main__':
 	app.run(debug=True)
