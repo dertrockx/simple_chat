@@ -233,36 +233,21 @@ def chat():
 @is_logged_in
 def logout():
 	try:
-		print("1")
 		session_ids = Session.query.filter_by(user_id=session.get('user_id')).all()
-		print("2")
 		active_user = ActiveUser.query.filter_by(user_id=session.get('user_id')).first()
-		print("3")
 		device = Device.query.filter_by(uuid=session.get('device_uuid')).first()
-		print("4")
-		print(7)
-		if device:
-			print(5)
-			db.session.delete(device)
-			print(6)
-			db.session.commit()
-			print(1000)
+		print(device)
 		if len(session_ids) == 1:
-			print(8)
 			db.session.delete(active_user)
-			print(9)
 			db.session.commit()
-		print(10)
 		for sess in session_ids:
-			count = 11
 			if sess.device.uuid == session.get('device_uuid'):
-				print(count)
 				db.session.delete(sess)
-				count+=1
-				print(count)
 				db.session.commit()
-				count+=1
-				print(count)
+		if device:
+			print("Deleting device...")
+			db.session.delete(device)
+			db.session.commit()
 		session.pop('logged_in')
 		session.pop('user_id')
 		session.pop('user_username')
