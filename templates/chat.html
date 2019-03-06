@@ -124,9 +124,8 @@
 	}
 	function scroll_to_bottom(){
 		let height = 0;
-		$('.chats li').each(function(i, value){
-			height += parseInt($(this).height());
-		});
+		let chats = $('.chats');
+		height = chats[0].scrollHeight;
 		console.log(height);
 		$('.chats').animate({scrollTop: height});
 	}
