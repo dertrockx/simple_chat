@@ -102,7 +102,7 @@ def logout():
 		session_ids = Session.query.filter_by(user_id=session.get('user_id')).all()
 		active_user = ActiveUser.query.filter_by(user_id=session.get('user_id')).first()
 		device = Device.query.filter_by(uuid=session.get('device_uuid')).first()
-		print(device)
+		
 		if len(session_ids) == 1:
 			db.session.delete(active_user)
 			db.session.commit()
@@ -111,7 +111,6 @@ def logout():
 				db.session.delete(sess)
 				db.session.commit()
 		if device:
-			print("Deleting device...")
 			db.session.delete(device)
 			db.session.commit()
 		session.pop('logged_in')
@@ -171,10 +170,6 @@ def list_all_messages():
 	messages = Message.query.order_by('timestamp').all()
 	for message in messages:
 		mes = mes_.dump(message).data
-		if mes.get('user_id') == session.get('user_id'):
-			mes['owner'] = True
-		else:
-			mes['owner'] = False
 		serialized_messages.append(mes)
 	io.emit('list_all_messages', serialized_messages, broadcast=True)
 
@@ -184,7 +179,7 @@ def send_message(message):
 	db.session.add(mes)
 	db.session.commit()
 	message = MessageSchema().dump(mes).data
-	io.emit("update_message", message, broadcast=True)
+	io.emit("update_message", [message], broadcast=True)
 
 
 if __name__ == '__main__':
